@@ -307,6 +307,50 @@ func (notify *RoomLeaveUserNtfPacket) Decoding(bodyData []byte) bool {
 	return true
 }
 
+///<<<Room Relay
+type RoomRelayReqPacket struct {
+	Data []byte
+}
+
+func (request RoomRelayReqPacket) EncodingPacket(size int16) ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + int16(len(request.Data))
+	sendBuf := make([]byte, totalSize)
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_RELAY_REQ, 0)
+
+	writer.WriteBytes(request.Data)
+	return sendBuf, totalSize
+}
+
+func (request *RoomRelayReqPacket) Decoding(bodyData []byte) bool {
+	reader := MakeReader(bodyData, true)
+	request.Data = reader.ReadBytes(len(bodyData))
+	return true
+}
+
+type RoomRelayNtfPacket struct {
+	RoomUserUniqueId uint64
+	Data             []byte
+}
+
+func (notify RoomRelayNtfPacket) EncodingPacket(size int16) ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 8 + int16(len(notify.Data))
+	sendBuf := make([]byte, totalSize)
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_RELAY_NTF, 0)
+
+	writer.WriteU64(notify.RoomUserUniqueId)
+	writer.WriteBytes(notify.Data)
+	return sendBuf, totalSize
+}
+
+func (notify *RoomRelayNtfPacket) Decoding(bodyData []byte) bool {
+	reader := MakeReader(bodyData, true)
+	notify.RoomUserUniqueId, _ = reader.ReadU64()
+	notify.Data = reader.ReadBytes(len(bodyData) - 8)
+	return true
+}
+
 //
 
 func NotifyErrorPacket(sessionIndex int32, sessionUniqueID uint64, errorCode int16) {

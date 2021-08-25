@@ -263,6 +263,50 @@ func (notify RoomNewUserNtfPacket) EncodingPacket(userInfoSize int16) ([]byte, i
 	return sendBuf, totalSize
 }
 
+//<<< 방에서 나가기
+type RoomLeaveResPacket struct {
+	Result int16
+}
+
+func (response RoomLeaveResPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 2
+	sendBuf := make([]byte, totalSize)
+
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_LEAVE_RES, 0)
+
+	return sendBuf, totalSize
+}
+
+func (response *RoomLeaveResPacket) Decoding(bodyData []byte) bool {
+	reader := MakeReader(bodyData, true)
+	response.Result, _ = reader.ReadS16()
+	return true
+}
+
+type RoomLeaveUserNtfPacket struct {
+	UserUniqueId uint64
+}
+
+func (notify RoomLeaveUserNtfPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 8
+	sendBuf := make([]byte, totalSize)
+
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_LEAVE_USER_NTF, 0)
+	writer.WriteU64(notify.UserUniqueId)
+	return sendBuf, totalSize
+}
+
+func (notify *RoomLeaveUserNtfPacket) Decoding(bodyData []byte) bool {
+	if len(bodyData) != 8 {
+		return false
+	}
+	reader := MakeReader(bodyData, true)
+	notify.UserUniqueId, _ = reader.ReadU64()
+	return true
+}
+
 //
 
 func NotifyErrorPacket(sessionIndex int32, sessionUniqueID uint64, errorCode int16) {

@@ -77,6 +77,7 @@ func (room *baseRoom) settingPacketFunction() {
 	room._addPacketFunction(protocol.PACKET_ID_ROOM_LEAVE_REQ, room._packetProcess_LeaveUser)
 	room._addPacketFunction(protocol.PACKET_ID_ROOM_CHAT_REQ, room._packetProcess_Chat)
 	room._addPacketFunction(protocol.PACKET_ID_ROOM_RELAY_REQ, room._packetProcess_Relay)
+	room._addPacketFunction(protocol.PACKET_ID_ROOM_WHISPER_REQ, room._packetProcess_Whisper_Chat)
 }
 
 func (room *baseRoom) _addPacketFunction(packetID int16, packetFunc func(*roomUser, protocol.Packet) int16) {
@@ -198,6 +199,11 @@ func (room *baseRoom) _disConnectedUser(sessionUniqueId uint64) bool {
 
 func (room *baseRoom) secondTimeEvent() {
 	//TODO 주기적으로 방의 유저가 연결 되어 있는지 확인 필요
+}
+
+func (room *baseRoom) unicastPacket(packetSize int16, sendPacket []byte, sessionUniqueId uint64) {
+	user := room._userSessionUniqueIdMap[sessionUniqueId]
+	NetLibIPostSendToClient(user.netSessionIndex, user.netSessionUniqueId, sendPacket)
 }
 
 func (room *baseRoom) broadcastPacket(packetSize int16, sendPacket []byte, exceptSessionUniqueId uint64) {

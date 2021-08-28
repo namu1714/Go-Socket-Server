@@ -386,6 +386,65 @@ func (response *RoomChatNtfPacket) Decoding(bodyData []byte) bool {
 	return true
 }
 
+// 귓속말
+type RoomWhisperReqPacket struct {
+	RoomUserUniqueId uint64
+	MsgLength int16
+	Msgs 	  []byte
+}
+
+func (request RoomWhisperReqPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 8 + 2 + int16(request.MsgLength)
+	sendBuf := make([]byte, totalSize)
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_WHISPER_REQ, 0)
+
+	writer.WriteU64(request.RoomUserUniqueId)
+	writer.WriteS16(request.MsgLength)
+	writer.WriteBytes(request.Msgs)
+	return sendBuf, totalSize
+}
+
+func (request *RoomWhisperReqPacket) Decoding(bodyData []byte) bool {
+	bodyLength := len(bodyData)
+	reader := MakeReader(bodyData, true)
+	request.RoomUserUniqueId, _ = reader.ReadU64()
+	request.MsgLength, _ = reader.ReadS16()
+
+	if bodyLength != int(8 + 2 + request.MsgLength) {
+		return false
+	}
+
+	request.Msgs = bodyData[2:]
+	return true
+}
+
+type RoomWhisperNtfPacket struct {
+	RoomUserUniqueId uint64
+	MsgLen 			 int16
+	Msg 			 []byte
+}
+
+func (response RoomWhisperNtfPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 8 + int16(2) + response.MsgLen
+	sendBuf := make([]byte, totalSize)
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_WHISPER_NTF, 0)
+
+	writer.WriteU64(response.RoomUserUniqueId)
+	writer.WriteS16(response.MsgLen)
+	writer.WriteBytes(response.Msg)
+	return sendBuf, totalSize
+}
+
+func (response *RoomWhisperNtfPacket) Decoding(bodyData []byte) bool {
+	reader := MakeReader(bodyData, true)
+	response.RoomUserUniqueId, _ = reader.ReadU64()
+	response.MsgLen, _ = reader.ReadS16()
+	response.Msg = reader.ReadBytes(int(response.MsgLen))
+	return true
+}
+
 ///<<<Room Relay
 type RoomRelayReqPacket struct {
 	Data []byte

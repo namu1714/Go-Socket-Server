@@ -31,6 +31,8 @@ func (server *ChatServer) PacketProcess_goroutine() {
 			break
 		}
 	}
+
+	OutPutLog(LOG_LEVEL_INFO, "", 0,"Stop rooms PacketProcess goroutine")
 }
 
 func (server *ChatServer) PacketProcess_goroutine_Impl() bool {

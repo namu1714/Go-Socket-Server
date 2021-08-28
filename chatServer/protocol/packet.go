@@ -307,6 +307,85 @@ func (notify *RoomLeaveUserNtfPacket) Decoding(bodyData []byte) bool {
 	return true
 }
 
+/// [ 방 채팅 ]
+type RoomChatReqPacket struct {
+	MsgLength int16
+	Msgs 	  []byte
+}
+
+func (request RoomChatReqPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 2 + int16(request.MsgLength)
+	sendBuf := make([]byte, totalSize)
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_CHAT_REQ, 0)
+
+	writer.WriteS16(request.MsgLength)
+	writer.WriteBytes(request.Msgs)
+	return sendBuf, totalSize
+}
+
+func (request *RoomChatReqPacket) Decoding(bodyData []byte) bool {
+	bodyLength := len(bodyData)
+	if bodyLength < 2 {
+		return false
+	}
+
+	reader := MakeReader(bodyData, true)
+	request.MsgLength, _ = reader.ReadS16()
+
+	if bodyLength != int(2 + request.MsgLength) {
+		return false
+	}
+
+	request.Msgs = bodyData[2:]
+	return true
+}
+
+type RoomChatResPacket struct {
+	Result int16
+}
+
+func (response RoomChatResPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 2
+	sendBuf := make([]byte, totalSize)
+
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_CHAT_RES, 0)
+	return sendBuf, totalSize
+}
+
+func (response *RoomChatResPacket) Decoding(bodyData []byte) bool {
+	reader := MakeReader(bodyData, true)
+	response.Result, _ = reader.ReadS16()
+	return true
+}
+
+type RoomChatNtfPacket struct {
+	RoomUserUniqueId uint64
+	MsgLen 			 int16
+	Msg 			 []byte
+}
+
+func (response RoomChatNtfPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 8 + int16(2) + response.MsgLen
+	sendBuf := make([]byte, totalSize)
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_CHAT_NOTIFY, 0)
+
+	writer.WriteU64(response.RoomUserUniqueId)
+	writer.WriteS16(response.MsgLen)
+	writer.WriteBytes(response.Msg)
+	return sendBuf, totalSize
+}
+
+func (response *RoomChatNtfPacket) Decoding(bodyData []byte) bool {
+	reader := MakeReader(bodyData, true)
+	response.RoomUserUniqueId, _ = reader.ReadU64()
+	response.MsgLen, _ = reader.ReadS16()
+	response.Msg = reader.ReadBytes(int(response.MsgLen))
+	return true
+}
+
 ///<<<Room Relay
 type RoomRelayReqPacket struct {
 	Data []byte

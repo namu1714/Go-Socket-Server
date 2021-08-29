@@ -489,6 +489,77 @@ func (notify *RoomRelayNtfPacket) Decoding(bodyData []byte) bool {
 	return true
 }
 
+// 방 초대
+type RoomInviteReqPacket struct {
+	IDLen      int8
+	ID         []byte
+}
+
+func (request RoomInviteReqPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 1 + int16(request.IDLen)
+	sendBuf := make([]byte, totalSize)
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_INVITE_REQ, 0)
+
+	writer.WriteS8(request.IDLen)
+	writer.WriteBytes(request.ID[:request.IDLen])
+	return sendBuf, totalSize
+}
+
+func (request *RoomInviteReqPacket) Decoding(bodyData []byte) bool {
+	reader := MakeReader(bodyData, true)
+	request.IDLen, _ = reader.ReadS8()
+	request.ID = reader.ReadBytes(int(request.IDLen))
+
+	return true
+}
+
+type RoomInviteResPacket struct {
+	Result int16
+}
+
+func (response RoomInviteResPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 2
+	sendBuf := make([]byte, totalSize)
+
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_INVITE_RES, 0)
+	return sendBuf, totalSize
+}
+
+func (response *RoomInviteResPacket) Decoding(bodyData []byte) bool {
+	reader := MakeReader(bodyData, true)
+	response.Result, _ = reader.ReadS16()
+	return true
+}
+
+type RoomInviteNtfPacket struct {
+	RoomNumber int32
+	IDLen      int8 //초대자 id
+	ID         []byte
+}
+
+func (response RoomInviteNtfPacket) EncodingPacket() ([]byte, int16) {
+	totalSize := _clientSessionHeaderSize + 4 + 1 + int16(response.IDLen)
+	sendBuf := make([]byte, totalSize)
+	writer := MakeWriter(sendBuf, true)
+	EncodingPacketHeader(&writer, totalSize, PACKET_ID_ROOM_INVITE_REQ, 0)
+
+	writer.WriteS32(response.RoomNumber)
+	writer.WriteS8(response.IDLen)
+	writer.WriteBytes(response.ID[:response.IDLen])
+	return sendBuf, totalSize
+}
+
+func (response *RoomInviteNtfPacket) Decoding(bodyData []byte) bool {
+	reader := MakeReader(bodyData, true)
+	response.RoomNumber, _ = reader.ReadS32()
+	response.IDLen, _ = reader.ReadS8()
+	response.ID = reader.ReadBytes(int(response.IDLen))
+
+	return true
+}
+
 //
 
 func NotifyErrorPacket(sessionIndex int32, sessionUniqueID uint64, errorCode int16) {

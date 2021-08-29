@@ -130,3 +130,14 @@ func GetRoomNumber(sessionIndex int32) (int32, int32) {
 	}
 	return _manager._sessionList[sessionIndex].getRoomNumber()
 }
+
+func GetNetWorkInfoByUserID(userID []byte) (int32, uint64) {
+	sessionObj, ok := _manager._UserIDsessionMap.Load(userID);
+	userSession := sessionObj.(*session)
+
+	if ok == false {
+		return -1, 0
+	}
+
+	return userSession.GetNetworkInfo()
+}

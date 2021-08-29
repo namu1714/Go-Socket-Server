@@ -77,7 +77,10 @@ func (room *baseRoom) settingPacketFunction() {
 	room._addPacketFunction(protocol.PACKET_ID_ROOM_LEAVE_REQ, room._packetProcess_LeaveUser)
 	room._addPacketFunction(protocol.PACKET_ID_ROOM_CHAT_REQ, room._packetProcess_Chat)
 	room._addPacketFunction(protocol.PACKET_ID_ROOM_RELAY_REQ, room._packetProcess_Relay)
+	
+	// 추가 구현
 	room._addPacketFunction(protocol.PACKET_ID_ROOM_WHISPER_REQ, room._packetProcess_Whisper_Chat)
+	room._addPacketFunction(protocol.PACKET_ID_ROOM_INVITE_REQ, room._packetProcess_Invite)
 }
 
 func (room *baseRoom) _addPacketFunction(packetID int16, packetFunc func(*roomUser, protocol.Packet) int16) {

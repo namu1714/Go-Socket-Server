@@ -29,8 +29,9 @@ func parseAppConfig() (NetworkConfig, configAppServer) {
 
 	flag.BoolVar(&netConfig.IsTcp4Addr, "c_IsTcp4Addr", true, "bool flag")
 	flag.StringVar(&netConfig.BindAddress, "c_BindAddress", "127.0.0.1:11021", "string flag")
-	flag.IntVar(&netConfig.MaxSessionCount, "c_MaxSessionCount", 0, "int flag")
-	flag.IntVar(&netConfig.MaxPacketSize, "c_MaxPacketSize", 0, "int flag")
+	flag.IntVar(&netConfig.MaxSessionCount, "c_MaxSessionCount", 10, "int flag")
+	flag.IntVar(&netConfig.MaxPacketSize, "c_MaxPacketSize", 128, "int flag")
+	flag.IntVar(&netConfig.MaxReceiveBufferSize, "c_MaxReceiveBufferSize", 1024, "int flag")
 
 	flag.Parse()
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -80,6 +81,7 @@ func (server *ChatServer) setIPAddress(ipAddress string) bool {
 }
 
 func (server *ChatServer) OnConnect(sessionIndex int32, sessionUniqueID uint64) {
+	OutPutLog(LOG_LEVEL_INFO, "", 0, fmt.Sprintf("[OnConnect] sessionIndex: %d", sessionIndex))
 	connectedSessions.AddSession(sessionIndex, sessionUniqueID)
 }
 
@@ -89,6 +91,7 @@ func (server *ChatServer) OnReceive(sessionIndex int32, sessionUniqueID uint64, 
 }
 
 func (server *ChatServer) OnClose(sessionIndex int32, sessionUniqueID uint64) {
+	OutPutLog(LOG_LEVEL_INFO, "", 0, fmt.Sprintf("[OnClose] sessionIndex: %d", sessionIndex))
 	server.disConnectClient(sessionIndex, sessionUniqueID)
 }
 

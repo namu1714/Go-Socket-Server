@@ -6,9 +6,10 @@ import (
 	"sync/atomic"
 )
 
-
 func start_Network_Impl(clientConfig *NetworkConfig, networkFunctor SessionNetworkFunctors) {
 	defer PrintPanicStack()
+
+	_InitNetworkSendFunction()
 
 	// 아래 함수가 호출되면 무한 대기에 들어간다
 	_tcpSessionManager = newClientSessionManager(clientConfig, networkFunctor)
@@ -84,8 +85,6 @@ func sendPacketToServer(sessionIndex int32, data []byte) bool {
 func postSendPacketToServer(sessionIndex int32, data []byte) bool {
 	return false
 }
-
-
 
 var _seqNumber uint64 // 절대 이것을 바로 사용하면 안 된다!!!
 

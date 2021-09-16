@@ -49,7 +49,7 @@ func (server *EchoServer) setIPAddress(ipAddress string) bool {
 }
 
 func (server *EchoServer) OnConnect(sessionIndex int32, sessionUniqueID uint64) {
-	OutPutLog(LOG_LEVEL_INFO, "", 0, fmt.Sprint("[OnConnect] sessionIndex: %d", sessionIndex))
+	OutPutLog(LOG_LEVEL_INFO, "", 0, fmt.Sprintf("[OnConnect] sessionIndex: %d", sessionIndex))
 }
 
 func (server *EchoServer) OnReceive(sessionIndex int32, sessionUniqueID uint64, data []byte) bool {
@@ -58,5 +58,5 @@ func (server *EchoServer) OnReceive(sessionIndex int32, sessionUniqueID uint64, 
 }
 
 func (server *EchoServer) OnClose(sessionIndex int32, sessionUniqueID uint64) {
-	OutPutLog(LOG_LEVEL_INFO, "", 0, fmt.Sprint("[OnClose] sessionIndex: %d", sessionIndex))
+	OutPutLog(LOG_LEVEL_INFO, "", 0, fmt.Sprintf("[OnClose] sessionIndex: %d", sessionIndex))
 }
